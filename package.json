@@ -1,0 +1,15 @@
+{
+  "name": "english-comic-generator",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Generate interactive comic-style HTML pages for English learning using AI",
+  "scripts": {
+    "generate": "node src/index.js",
+    "help": "node src/index.js --help"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "dotenv": "^16.4.0",
+    "openai": "^4.73.0"
+  }
+}

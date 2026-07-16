@@ -1,0 +1,14 @@
+.env
+__pycache__/
+*.pyc
+data/
+*.db
+.venv/
+venv/
+node_modules/
+output/
+.idea/
+*.pyo
+.pytest_cache/
+.DS_Store
+*.log
