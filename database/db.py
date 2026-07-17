@@ -64,5 +64,97 @@ def init_db():
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS topics (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL DEFAULT (date('now', 'localtime')),
+            title TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            tags TEXT DEFAULT '',
+            status TEXT DEFAULT 'active',
+            created_at TEXT DEFAULT (datetime('now', 'localtime')),
+            updated_at TEXT DEFAULT (datetime('now', 'localtime'))
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS learning_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            topic_id INTEGER NOT NULL,
+            english TEXT NOT NULL,
+            chinese TEXT NOT NULL,
+            item_type TEXT NOT NULL DEFAULT 'word',
+            notes TEXT DEFAULT '',
+            mastery_level INTEGER DEFAULT 0,
+            original_text TEXT DEFAULT '',
+            corrected_text TEXT DEFAULT '',
+            source TEXT DEFAULT 'manual',
+            used_in_scene INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT (datetime('now', 'localtime')),
+            FOREIGN KEY (topic_id) REFERENCES topics(id) ON DELETE CASCADE
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS scenes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            topic_id INTEGER NOT NULL,
+            title TEXT NOT NULL,
+            background TEXT DEFAULT '',
+            characters TEXT DEFAULT '[]',
+            learning_goal TEXT DEFAULT '',
+            template TEXT DEFAULT 'grid4',
+            visual_style TEXT DEFAULT '',
+            status TEXT DEFAULT 'draft',
+            version INTEGER DEFAULT 1,
+            prompt_version TEXT DEFAULT 'v1',
+            model TEXT DEFAULT '',
+            raw_response TEXT DEFAULT '',
+            created_at TEXT DEFAULT (datetime('now', 'localtime')),
+            FOREIGN KEY (topic_id) REFERENCES topics(id) ON DELETE CASCADE
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS scene_shots (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            scene_id INTEGER NOT NULL,
+            "order" INTEGER NOT NULL,
+            visual_description TEXT DEFAULT '',
+            character_action TEXT DEFAULT '',
+            dialogue TEXT DEFAULT '',
+            dialogue_zh TEXT DEFAULT '',
+            bound_items TEXT DEFAULT '[]',
+            image_path TEXT DEFAULT '',
+            prompt_positive TEXT DEFAULT '',
+            prompt_negative TEXT DEFAULT '',
+            narration TEXT DEFAULT '',
+            created_at TEXT DEFAULT (datetime('now', 'localtime')),
+            FOREIGN KEY (scene_id) REFERENCES scenes(id) ON DELETE CASCADE
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS scene_items (
+            scene_id INTEGER NOT NULL,
+            item_id INTEGER NOT NULL,
+            PRIMARY KEY (scene_id, item_id),
+            FOREIGN KEY (scene_id) REFERENCES scenes(id) ON DELETE CASCADE,
+            FOREIGN KEY (item_id) REFERENCES learning_items(id) ON DELETE CASCADE
+        )
+    """)
+
+    # Migrations for existing databases
+    for col, col_type in [
+        ("image_path", "TEXT DEFAULT ''"),
+        ("prompt_positive", "TEXT DEFAULT ''"),
+        ("prompt_negative", "TEXT DEFAULT ''"),
+        ("narration", "TEXT DEFAULT ''"),
+    ]:
+        try:
+            cursor.execute(f"ALTER TABLE scene_shots ADD COLUMN {col} {col_type}")
+        except Exception:
+            pass
+
     conn.commit()
     conn.close()

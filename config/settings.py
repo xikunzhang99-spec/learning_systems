@@ -33,6 +33,12 @@ TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")
 OBSIDIAN_VAULT_PATH = os.getenv("OBSIDIAN_VAULT_PATH", "")
 OBSIDIAN_NOTE_FOLDER = os.getenv("OBSIDIAN_NOTE_FOLDER", "术语库")
 
-# Output & Node.js
+# Output (legacy, kept for existing saved files)
 OUTPUT_DIR = os.path.join(BASE_DIR, "output")
-NODE_SRC_DIR = os.path.join(BASE_DIR, "src")
+
+# Image Generation
+IMAGE_PROVIDER = os.getenv("IMAGE_PROVIDER", "").lower()
+IMAGE_API_KEY = os.getenv("IMAGE_API_KEY", "")
+IMAGE_MODEL = os.getenv("IMAGE_MODEL", "")
+IMAGE_BASE_URL = os.getenv("IMAGE_BASE_URL", "")
+IMAGE_SIZE = os.getenv("IMAGE_SIZE", "1024x1024")
