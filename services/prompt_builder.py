@@ -79,9 +79,19 @@ def build_shot_prompt(shot, scene_prompt):
     if visual:
         shot_specific.append(visual)
 
-    shot_pos = f"{shared_pos}. {' — '.join(shot_specific)}"
+    # Build positive prompt with explicit no-text directive at the end
+    no_text_directive = (
+        "NO text, NO letters, NO words, NO captions, NO subtitles, "
+        "NO speech bubbles, NO dialogue, NO typography, "
+        "NO watermark, NO logo, NO UI elements"
+    )
+    shot_pos = (
+        f"{shared_pos}. "
+        f"{' — '.join(shot_specific)}. "
+        f"{no_text_directive}"
+    )
 
-    # No text rule
+    # No text rule in negative
     no_text_rule = (
         "no text, no letters, no words, no captions, no subtitles, "
         "no speech bubbles, no dialogue boxes, no typography, "
@@ -131,13 +141,15 @@ def validate_prompt(prompt_dict):
     pos = prompt_dict.get("positive", "").lower()
     neg = prompt_dict.get("negative", "").lower()
 
-    # Detect dialogue-generating instructions in image prompt
+    # Detect dialogue-generating instructions (not prohibitions)
     banned = [
         "dialogue", "caption", "subtitle", "speech bubble",
-        "text box", "words on", "letters on", "written",
+        "text box", "words on", "letters on",
     ]
     for word in banned:
-        if word in pos:
+        # Allow "NO dialogue", "no dialogue" etc as prohibitions
+        negated = f"no {word}" in pos or f"NO {word}" in pos
+        if word in pos and not negated:
             issues.append(
                 f"Image prompt contains '{word}' — may generate text in image"
             )
